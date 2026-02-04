@@ -1,57 +1,45 @@
 import { Webhook } from "svix";
 import User from "../models/User.js";
 
-// API Controller to manage Clerk Webhooks
 export const clerkWebhooks = async (req, res) => {
   try {
+    const payload = req.body.toString();
+    const headers = req.headers;
+
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
-    // Verify webhook signature
-    whook.verify(JSON.stringify(req.body), {
-      "svix-id": req.headers["svix-id"],
-      "svix-timestamp": req.headers["svix-timestamp"],
-      "svix-signature": req.headers["svix-signature"],
+    const event = whook.verify(payload, {
+      "svix-id": headers["svix-id"],
+      "svix-timestamp": headers["svix-timestamp"],
+      "svix-signature": headers["svix-signature"],
     });
 
-    const { data, type } = req.body;
+    const { data, type } = event;
 
-    switch (type) {
-      case "user.created": {
-        const userData = {
-          _id: data.id,
-          email: data.email_addresses?.[0]?.email_address || "",
-          name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
-          imageUrl: data.image_url,
-        };
-
-        await User.create(userData);
-        return res.status(200).json({ success: true });
-      }
-
-      case "user.updated": {
-        const userData = {
-          email: data.email_addresses?.[0]?.email_address || "",
-          name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
-          imageUrl: data.image_url,
-        };
-
-        await User.findByIdAndUpdate(data.id, userData);
-        return res.status(200).json({ success: true });
-      }
-
-      case "user.deleted": {
-        await User.findByIdAndDelete(data.id);
-        return res.status(200).json({ success: true });
-      }
-
-      default:
-        return res.status(200).json({ success: true });
+    if (type === "user.created") {
+      await User.create({
+        _id: data.id, // Clerk userId
+        email: data.email_addresses?.[0]?.email_address || "",
+        name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+        imageUrl: data.image_url,
+      });
     }
-  } catch (error) {
-    console.error("Clerk Webhook Error:", error.message);
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+
+    if (type === "user.updated") {
+      await User.findByIdAndUpdate(data.id, {
+        email: data.email_addresses?.[0]?.email_address || "",
+        name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+        imageUrl: data.image_url,
+      });
+    }
+
+    if (type === "user.deleted") {
+      await User.findByIdAndDelete(data.id);
+    }
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error("Clerk Webhook Error:", err);
+    res.status(400).json({ success: false });
   }
 };
