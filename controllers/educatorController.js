@@ -9,7 +9,7 @@ import { Purchase } from '../models/Purchase.js';
 export const updateRoleToEducator = async (req, res) => {
   try {
     // NEW Clerk syntax
-   const { userId } = req.auth.userId;
+   const userId  = req.auth.userId;
    await clerkClient.users.updateUserMetadata(userId,{
     publicMetadata:{
       role:'educator'
