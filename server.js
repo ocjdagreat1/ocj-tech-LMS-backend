@@ -39,14 +39,27 @@ app.post(
 // ---------------- MIDDLEWARES ----------------
 
 // CORS
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    origin: "https://ocj-tech-lms-frontend-okxd.vercel.app/",
-    origin: "http://ocj-tech-lms-frontend-okxd.vercel.app/",
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ocj-tech-lms-frontend-okxd.vercel.app"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+
+    // allow requests with no origin (mobile apps, postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error("CORS not allowed"), false);
+    }
+
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // Clerk auth middleware
 app.use(clerkMiddleware());
