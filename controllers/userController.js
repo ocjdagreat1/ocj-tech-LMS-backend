@@ -72,7 +72,7 @@ const line_items =[{
 const session = await stripeInstance.checkout.sessions.create({
   success_url: `${origin}/loading/my-enrollments`,
   cancel_url:`${origin}/`,
-  line_items:line,
+  line_items:line_items,
   mode:'payment',
   metadata:{
     purchaseId: newPurchase._id.toString()  
@@ -147,6 +147,8 @@ export const addUserRating = async(req,res) =>{
     if(!user || !user.enrolledCourses.includes(courseId)){
       return res.json({success:false, message:'User has not Purchase this course'});
     }
+
+    
     const existingRatingIndex = course.courseRatings.findIndex(r => r.userId === userId)
 
     if(existingRatingIndex > -1){
