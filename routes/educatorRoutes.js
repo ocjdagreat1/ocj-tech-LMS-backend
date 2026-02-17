@@ -19,3 +19,5 @@ educatorRouter.get('/courses',requireAuth(),protectEducator, getEducatorCourses)
 educatorRouter.get('/dashboard', requireAuth(),protectEducator,educatorDashboardData)
 educatorRouter.get('/enrolled-students',requireAuth(),protectEducator,getEnrolledStudentsData
 )
+
+export default educatorRouter;
