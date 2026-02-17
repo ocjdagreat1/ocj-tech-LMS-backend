@@ -42,6 +42,8 @@ app.post(
 app.use(
   cors({
     origin: "http://localhost:5173",
+    origin: "https://ocj-tech-lms-frontend-okxd.vercel.app/",
+    origin: "http://ocj-tech-lms-frontend-okxd.vercel.app/",
     credentials: true,
   })
 );
