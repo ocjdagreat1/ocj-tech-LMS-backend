@@ -22,20 +22,19 @@ export const subscribeNewsletter = async (req, res) => {
     // Send confirmation email
     const unsubscribeUrl = `${process.env.FRONTEND_URL}/unsubscribe/${unsubscribeToken}`;
     await resend.emails.send({
-     from: "OCJ TECH <onboarding@resend.dev>", // must be verified domain
-      to: email,
-      subject: "Welcome to OCJ TECH Newsletter",
-      html: `
-        <div style="font-family: Arial, sans-serif;">
-          <h2>Welcome to OCJ TECH!</h2>
-          <p>Thank you for subscribing to our newsletter. You'll now receive weekly updates and resources.</p>
-          <p>If you wish to unsubscribe at any time, click <a href="${unsubscribeUrl}">here</a>.</p>
-          <br/>
-          <p><strong>— The OCJ TECH Team</strong></p>
-        </div>
-      `,
-    });
-
+  from: `OCJ TECH <${process.env.EMAIL_FROM}>`, // ✅ use verified domain
+  to: email,
+  subject: "Welcome to OCJ TECH Newsletter",
+  html: `
+    <div style="font-family: Arial, sans-serif;">
+      <h2>Welcome to OCJ TECH!</h2>
+      <p>Thank you for subscribing to our newsletter. You'll now receive weekly updates and resources.</p>
+      <p>If you wish to unsubscribe at any time, click <a href="${unsubscribeUrl}">here</a>.</p>
+      <br/>
+      <p><strong>— The OCJ TECH Team</strong></p>
+    </div>
+  `,
+});
     return res.json({
       success: true,
       message: "Subscribed successfully. Confirmation email sent!",
@@ -81,3 +80,35 @@ export const checkSubscription = async (req, res) => {
     return res.status(500).json({ subscribed: false });
   }
 };
+
+
+/*admin newsletter
+
+
+export const sendNewsletter = async (req, res) => {
+  try {
+    const { subject, message } = req.body;
+    const subscribers = await Newsletter.find();
+
+    for (const user of subscribers) {
+      await resend.emails.send({
+        from: `OCJ TECH <${process.env.EMAIL_FROM}>`,
+        to: user.email,
+        subject,
+        html: `<h2>${subject}</h2><p>${message}</p><br/><p>— OCJ TECH Team</p>`,
+      });
+    }
+
+    res.json({ success: true, message: "Newsletter sent to all subscribers!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Failed to send newsletter" });
+  }
+};
+
+
+
+
+
+
+*/
