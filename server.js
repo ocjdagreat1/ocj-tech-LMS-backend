@@ -8,6 +8,8 @@ import { clerkWebhooks, stripeWebhooks } from "./controllers/webhooks.js";
 import connectCloudinary from "./configs/cloudinary.js";
 import courseRouter from "./routes/courseRoute.js";
 import userRouter from "./routes/userRoute.js";
+import newsletterRouter from "./routes/newsletterRoute.js"
+
 
 // initialise express
 const app = express();
