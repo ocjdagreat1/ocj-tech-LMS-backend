@@ -1,32 +1,83 @@
 import Newsletter from "../models/Newsletter.js";
-import transporter from "../configs/mailer.js";
+import resend from "../configs/resend.js";
+import crypto from "crypto";
 
+// Subscribe to newsletter
 export const subscribeNewsletter = async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ success: false, message: "Email is required" });
+    if (!email)
+      return res.status(400).json({ success: false, message: "Email is required" });
 
     const existing = await Newsletter.findOne({ email });
-    if (existing) return res.status(400).json({ success: false, message: "Email already subscribed" });
+    if (existing)
+      return res.status(400).json({ success: false, message: "Email already subscribed" });
 
-    const newSubscriber = new Newsletter({ email });
+    // Generate a unique unsubscribe token
+    const unsubscribeToken = crypto.randomBytes(20).toString("hex");
+
+    const newSubscriber = new Newsletter({ email, unsubscribeToken });
     await newSubscriber.save();
 
     // Send confirmation email
-    await transporter.sendMail({
-      from: `"OCJ TECH Newsletter" <${process.env.SMTP_USER}>`,
+    const unsubscribeUrl = `${process.env.FRONTEND_URL}/unsubscribe/${unsubscribeToken}`;
+    await resend.emails.send({
+     from: "OCJ TECH <onboarding@resend.dev>", // must be verified domain
       to: email,
-      subject: "Thank you for subscribing!",
+      subject: "Welcome to OCJ TECH Newsletter",
       html: `
-        <h2>Welcome to OCJ TECH!</h2>
-        <p>Thank you for subscribing to our newsletter. You'll now receive the latest news, articles, and resources directly in your inbox.</p>
-        <p>— The OCJ TECH Team</p>
+        <div style="font-family: Arial, sans-serif;">
+          <h2>Welcome to OCJ TECH!</h2>
+          <p>Thank you for subscribing to our newsletter. You'll now receive weekly updates and resources.</p>
+          <p>If you wish to unsubscribe at any time, click <a href="${unsubscribeUrl}">here</a>.</p>
+          <br/>
+          <p><strong>— The OCJ TECH Team</strong></p>
+        </div>
       `,
     });
 
-    return res.json({ success: true, message: "Subscribed successfully, confirmation email sent!" });
+    return res.json({
+      success: true,
+      message: "Subscribed successfully. Confirmation email sent!",
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Subscribe Error:", error);
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Unsubscribe using email (for toggle button)
+export const unsubscribeNewsletter = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email)
+      return res.status(400).json({ success: false, message: "Email is required" });
+
+    const subscriber = await Newsletter.findOneAndDelete({ email });
+
+    if (!subscriber)
+      return res.status(400).json({ success: false, message: "Email not found" });
+
+    return res.json({
+      success: true,
+      message: "You have successfully unsubscribed from our newsletter.",
+    });
+  } catch (error) {
+    console.error("Unsubscribe Error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Optional: Check if email is subscribed
+export const checkSubscription = async (req, res) => {
+  try {
+    const { email } = req.params;
+    if (!email) return res.json({ subscribed: false });
+
+    const subscriber = await Newsletter.findOne({ email });
+    return res.json({ subscribed: !!subscriber });
+  } catch (error) {
+    console.error("Check Subscription Error:", error);
+    return res.status(500).json({ subscribed: false });
   }
 };

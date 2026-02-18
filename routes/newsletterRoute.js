@@ -1,12 +1,14 @@
 import express from "express";
-import { subscribeNewsletter} from "../controllers/newsletterController.js";
+import {
+  subscribeNewsletter,
+  unsubscribeNewsletter,
+  checkSubscription,
+} from "../controllers/newsletterController.js";
 
 const router = express.Router();
 
-// Public subscription route
 router.post("/subscribe", subscribeNewsletter);
-
-// Optional admin route
-//router.get("/subscribers", getSubscribers);
+router.delete("/unsubscribe", unsubscribeNewsletter); // email sent in body
+router.get("/check/:email", checkSubscription); // optional for frontend toggle
 
 export default router;
