@@ -9,18 +9,19 @@ import connectCloudinary from "./configs/cloudinary.js";
 import courseRouter from "./routes/courseRoute.js";
 import userRouter from "./routes/userRoute.js";
 import newsletterRouter from "./routes/newsletterRoute.js"
+import contactRouter from "./routes/contactRoutes.js";
 
 
 // initialise express
 const app = express();
 
 
-// ---------------- DATABASE CONNECTIONS ----------------
+//  DATABASE CONNECTIONS 
 await connectDB();
 await connectCloudinary();
 
 
-// ---------------- WEBHOOKS ----------------
+// WEBHOOKS 
 // IMPORTANT: webhooks MUST come BEFORE express.json()
 
 // Clerk webhook
@@ -38,7 +39,7 @@ app.post(
 );
 
 
-// ---------------- MIDDLEWARES ----------------
+// MIDDLEWARES 
 
 // CORS
 const allowedOrigins = [
@@ -76,6 +77,7 @@ app.use("/api/educator",express.json(), educatorRouter);
 app.use("/api/course",express.json(), courseRouter);
 app.use("/api/user", express.json(),userRouter);
 app.use("/api/newsletter", express.json(), newsletterRouter);
+app.use("/api/contact", contactRouter);
 
 
 //  SERVER 
