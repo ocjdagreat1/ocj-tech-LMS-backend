@@ -77,7 +77,7 @@ app.use("/api/educator",express.json(), educatorRouter);
 app.use("/api/course",express.json(), courseRouter);
 app.use("/api/user", express.json(),userRouter);
 app.use("/api/newsletter", express.json(), newsletterRouter);
-app.use("/api/contact", contactRouter);
+app.use("/api/contact",express.json(), contactRouter);
 
 
 //  SERVER 
