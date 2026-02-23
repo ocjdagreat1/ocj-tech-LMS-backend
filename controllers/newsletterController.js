@@ -24,7 +24,7 @@ export const subscribeNewsletter = async (req, res) => {
     await resend.emails.send({
   from: `OCJ TECH <${process.env.EMAIL_FROM}>`, // ✅ use verified domain
   to: email,
-  subject: "Welcome to OCJ TECH Newsletter",
+  subject: "Welcome to OCJ TECH GLOBAL Newsletter",
   html: `
     <div style="font-family: Arial, sans-serif;">
       <h2>Welcome to OCJ TECH!</h2>

@@ -53,9 +53,12 @@ app.use(cors({
   credentials: true,
 }));
 
+// VERY IMPORTANT (fixes 405)
+app.options(/.*/, cors());
+
 
 // Clerk auth middleware
-app.use(clerkMiddleware());
+//app.use(clerkMiddleware());
 
 // ROUTES 
 
@@ -64,6 +67,11 @@ app.get("/", (req, res) => {
 });
 
 app.use(express.json());
+// EXCLUDE WEBHOOK FROM AUTH
+app.use((req, res, next) => {
+if (req.originalUrl.startsWith("/clerk")) return next();
+  return clerkMiddleware()(req, res, next);
+});
 app.use("/api/educator", educatorRouter);
 app.use("/api/course", courseRouter);
 app.use("/api/user", userRouter);
