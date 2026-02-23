@@ -44,25 +44,15 @@ app.post(
 // CORS
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://ocj-tech-lms-frontend-okxd.vercel.app"
+  "https://ocjtechglobal.store",
+  "https://www.ocjtechglobal.store"
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-
-    // allow requests with no origin (mobile apps, postman)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error("CORS not allowed"), false);
-    }
-
-    return callback(null, true);
-  },
+  origin: allowedOrigins,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 // Clerk auth middleware
 app.use(clerkMiddleware());
@@ -73,11 +63,13 @@ app.get("/", (req, res) => {
   res.send("API is running!");
 });
 
-app.use("/api/educator",express.json(), educatorRouter);
-app.use("/api/course",express.json(), courseRouter);
-app.use("/api/user", express.json(),userRouter);
-app.use("/api/newsletter", express.json(), newsletterRouter);
-app.use("/api/contact",express.json(), contactRouter);
+app.use(express.json());
+app.use("/api/educator", educatorRouter);
+app.use("/api/course", courseRouter);
+app.use("/api/user", userRouter);
+app.use("/api/newsletter", newsletterRouter);
+app.use("/api/contact", contactRouter);
+
 
 
 //  SERVER 
